@@ -16,6 +16,7 @@ class BudgetPlan extends Model
         'percent_saving',
         'expected_saving',
         'expected_monthly_saving',
+        'user_id',
         'year'
     ];
 

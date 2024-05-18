@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,7 @@ return new class extends Migration
             $table->float('percent_saving');
             $table->float('expected_saving');
             $table->float('expected_monthly_saving');
+            $table->foreignIdFor(User::class);
             $table->string('year');
             $table->timestamps();
         });

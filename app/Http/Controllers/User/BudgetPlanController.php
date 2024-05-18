@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
 use App\Models\BudgetPlan;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class BudgetPlanController extends Controller
@@ -38,6 +39,8 @@ class BudgetPlanController extends Controller
             'ex_monthly_saving' => 'required'
         ]);
 
+        $user = Auth::user();
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
@@ -49,6 +52,7 @@ class BudgetPlanController extends Controller
             'percent_saving' => $request->saving_percent,
             'expected_saving' => $request->expected_saving,
             'expected_monthly_saving' => $request->ex_monthly_saving,
+            'user_id' => $user->id,
             'year' => now()->format('Y')
         ]);
 
