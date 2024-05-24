@@ -24,7 +24,7 @@ class HomeController extends Controller
 
         $expenses = Expense::where('budget_id', $budget->id ?? null)->latest()->get();
 
-        $budgetPlan = BudgetPlan::where('user_id', $user->id)->latest()->first();
+        $budgetPlan = BudgetPlan::where('user_id', $user->id)->with(['funds'])->withSum('funds', 'amount')->latest()->get();
 
 
         return response([

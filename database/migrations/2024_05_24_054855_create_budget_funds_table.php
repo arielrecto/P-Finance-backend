@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\User;
+use App\Models\Budget;
+use App\Models\BudgetPlan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,12 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('budget_plans', function (Blueprint $table) {
+        Schema::create('budget_funds', function (Blueprint $table) {
             $table->id();
-            $table->float('name');
-            $table->string('category');
-            $table->foreignIdFor(User::class);
-            $table->float('deduct_percent');
+            $table->float('amount');
+            $table->foreignIdFor(BudgetPlan::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('budget_plans');
+        Schema::dropIfExists('budget_funds');
     }
 };

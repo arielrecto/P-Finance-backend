@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('month');
             $table->string('amount');
             $table->foreignIdFor(User::class);
-            $table->foreignIdFor(BudgetPlan::class);
             $table->timestamps();
         });
     }

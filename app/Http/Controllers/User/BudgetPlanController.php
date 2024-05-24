@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Models\BudgetPlan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,7 +16,12 @@ class BudgetPlanController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::get();
+
+
+        return response([
+            'categories' => $categories,
+        ], 200);
     }
 
     /**
@@ -32,11 +38,9 @@ class BudgetPlanController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'monthly_salary' => 'required',
-            'annual_salary' => 'required',
-            'saving_percent' => 'required',
-            'expected_saving' => 'required',
-            'ex_monthly_saving' => 'required'
+            'name' => 'required',
+            'category' => 'required',
+            'deductPercent' => 'required',
         ]);
 
         $user = Auth::user();
@@ -47,13 +51,10 @@ class BudgetPlanController extends Controller
 
 
         $budgetPlan = BudgetPlan::create([
-            'monthly_salary' => $request->monthly_salary,
-            'annual_salary' => $request->annual_salary,
-            'percent_saving' => $request->saving_percent,
-            'expected_saving' => $request->expected_saving,
-            'expected_monthly_saving' => $request->ex_monthly_saving,
+            'name' => $request->name,
+            'category' => $request->category,
+            'deduct_percent' => $request->deductPercent,
             'user_id' => $user->id,
-            'year' => now()->format('Y')
         ]);
 
         return response([

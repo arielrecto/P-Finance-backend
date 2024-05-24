@@ -11,17 +11,14 @@ class BudgetPlan extends Model
 
 
     protected $fillable = [
-        'monthly_salary',
-        'annual_salary',
-        'percent_saving',
-        'expected_saving',
-        'expected_monthly_saving',
+        'name',
+        'category',
+        'deduct_percent',
         'user_id',
-        'year'
     ];
 
 
-    public function budgets(){
-        return $this->hasMany(Budget::class);
+    public function funds(){
+        return $this->hasMany(BudgetFund::class);
     }
 }

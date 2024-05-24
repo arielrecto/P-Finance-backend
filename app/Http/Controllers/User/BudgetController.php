@@ -5,6 +5,8 @@ namespace App\Http\Controllers\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Budget;
+use App\Models\BudgetFund;
+use App\Models\BudgetPlan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -43,14 +45,30 @@ class BudgetController extends Controller
         }
 
 
+
+        $budgetPlans = BudgetPlan::get();
+
+
+
         $user = Auth::user();
 
         $budget = Budget::create([
             'amount' => $request->amount,
             'user_id' => $user->id,
             'month' => now()->format('F'),
-            'budget_plan_id' => $request->budgetPlanId
         ]);
+
+        collect($budgetPlans)->map(function($plan) use($budget) {
+            $fund = BudgetFund::create([
+                'amount' => $budget->amount * ($plan->deduct_percent / 100),
+                'budget_plan_id' => $plan->id,
+                'budget_id' => $budget->id
+            ]);
+
+            $budget->update([
+                'amount' => $budget->amount - $fund->amount
+            ]);
+        });
 
 
         return response([

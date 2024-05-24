@@ -13,7 +13,6 @@ class Budget extends Model
         'month',
         'amount',
         'user_id',
-        'budget_plan_id'
     ];
 
 
@@ -26,7 +25,7 @@ class Budget extends Model
     public function expenses(){
         return $this->hasMany(Expense::class);
     }
-    public function budgetPlan(){
-        return $this->belongsTo(BudgetPlan::class);
+    public function funds(){
+        return $this->hasMany(BudgetFund::class);
     }
 }
