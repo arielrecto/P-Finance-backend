@@ -30,9 +30,9 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        $tokenResult = $user->createToken('Personal Access Token');
+        // $tokenResult = $user->createToken('Personal Access Token');
 
-        $token = $tokenResult->plainTextToken;
+        // $token = $tokenResult->plainTextToken;
 
 
         $userRole = Role::where('name', 'user')->first();
@@ -41,8 +41,8 @@ class RegisterController extends Controller
 
         return response([
             'message' => 'Register Success',
-            'user' => $user,
-            'token' => $token
+            // 'user' => $user,
+            // 'token' => $token
         ], 200);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Expense;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\BudgetPlan;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -21,6 +22,7 @@ class HomeController extends Controller
             ->where('month', now()->format('F'));
         })->latest()->first();
 
+        $categories = Category::get();
 
         $expenses = Expense::where('budget_id', $budget->id ?? null)->latest()->get();
 
@@ -30,7 +32,8 @@ class HomeController extends Controller
         return response([
             'budget' => $budget,
             'expenses' => $expenses,
-            'budget_plan' => $budgetPlan
+            'budget_plan' => $budgetPlan,
+            'categories' => $categories
         ], 200);
     }
 }

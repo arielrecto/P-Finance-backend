@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Enums\CategoryEnum;
+use App\Models\BudgetPlanCategory;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -31,14 +32,39 @@ class DatabaseSeeder extends Seeder
         ];
 
 
-        collect($roles)->map(function($role){
+        collect($roles)->map(function ($role) {
             Role::create(['name' => $role]);
+        });
+
+        $budgetPlanCategories = [
+            'Vacation/Travel',
+            'Future of Kids',
+            'Special Events(Wedding, Birthdays, Christmas etc.)',
+            'Emergency Funds(Healthcare)',
+            'Education funds',
+            'Debt Repayment',
+            'Retirement',
+            'Investment/Business',
+            'Charity giving',
+            'Legal Expenses',
+            'Moving Expenses',
+            'Pet Care',
+            'Technology Upgrades/Gadgets',
+            'Career Development',
+            'Vehicle Maintenance/Replacement'
+        ];
+
+
+        collect($budgetPlanCategories)->map(function ($category) {
+            BudgetPlanCategory::create([
+                'name' => $category
+            ]);
         });
 
 
         $categories = CategoryEnum::cases();
 
-        collect($categories)->map(function($category){
+        collect($categories)->map(function ($category) {
             Category::create([
                 'name' => $category->value
             ]);

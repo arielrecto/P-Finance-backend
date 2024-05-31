@@ -34,6 +34,9 @@ class BudgetController extends Controller
     public function store(Request $request)
     {
 
+
+        $user = Auth::user();
+
         $validator = Validator::make($request->all(), [
             'amount' => 'required'
         ]);
@@ -46,7 +49,7 @@ class BudgetController extends Controller
 
 
 
-        $budgetPlans = BudgetPlan::get();
+        $budgetPlans = BudgetPlan::where('user_id', $user->id)->with(['funds'])->withSum('funds', 'amount')->get();
 
 
 
@@ -55,6 +58,7 @@ class BudgetController extends Controller
         $budget = Budget::create([
             'amount' => $request->amount,
             'user_id' => $user->id,
+            'init_amount' => $request->amount,
             'month' => now()->format('F'),
         ]);
 
@@ -72,7 +76,8 @@ class BudgetController extends Controller
 
 
         return response([
-            'budget' => $budget
+            'budget' => $budget,
+            'budget_plan' => $budgetPlans
         ], 200);
     }
 

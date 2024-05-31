@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Models\BudgetPlan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Budget;
+use App\Models\BudgetFund;
+use App\Models\BudgetPlanCategory;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +19,7 @@ class BudgetPlanController extends Controller
      */
     public function index()
     {
-        $categories = Category::get();
+        $categories = BudgetPlanCategory::get();
 
 
         return response([
@@ -56,6 +59,25 @@ class BudgetPlanController extends Controller
             'deduct_percent' => $request->deductPercent,
             'user_id' => $user->id,
         ]);
+
+
+        $budget = Budget::latest()->first();
+
+        if($budget){
+            $fund = BudgetFund::create([
+                'amount' => $budget->amount * ($budgetPlan->deduct_percent / 100),
+                'budget_plan_id' => $budgetPlan->id,
+                'budget_id' => $budget->id
+            ]);
+
+
+
+            $budget->update([
+                'amount' => $budget->amount - $fund->amount
+            ]);
+        }
+
+
 
         return response([
             'budget_plan' => $budgetPlan
