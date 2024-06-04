@@ -35,44 +35,52 @@ class BudgetController extends Controller
     {
 
 
-        $user = Auth::user();
-
         $validator = Validator::make($request->all(), [
-            'amount' => 'required'
+            'moneyIn' => 'required|array',
+            'moneyIn.amount' => 'required',
         ]);
 
-
-
+        // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json(['errors' => $validator->errors()], 400);
         }
 
 
+        $data = json_decode($request->getContent(), true);
 
-        $budgetPlans = BudgetPlan::where('user_id', $user->id)->with(['funds'])->withSum('funds', 'amount')->get();
+        $user = Auth::user();
+
+
+
+        $amount = $data['moneyIn']['amount'];
+        $breakDown = $data['breakDown'];
 
 
 
         $user = Auth::user();
 
         $budget = Budget::create([
-            'amount' => $request->amount,
+            'amount' => $amount,
             'user_id' => $user->id,
-            'init_amount' => $request->amount,
+            'init_amount' => $amount,
             'month' => now()->format('F'),
         ]);
 
-        collect($budgetPlans)->map(function($plan) use($budget) {
-            $fund = BudgetFund::create([
-                'amount' => $budget->amount * ($plan->deduct_percent / 100),
-                'budget_plan_id' => $plan->id,
+        collect($breakDown['listItems'])->map(function($breakDown) use($budget) {
+            BudgetFund::create([
+                'amount' => $breakDown['deduction'],
+                'budget_plan_id' => $breakDown['id'],
                 'budget_id' => $budget->id
             ]);
-
-            $budget->update([
-                'amount' => $budget->amount - $fund->amount
-            ]);
         });
+
+
+        $budget->update([
+            'amount' => $breakDown['remaining']
+        ]);
+
+
+        $budgetPlans = BudgetPlan::where('user_id', $user->id)->with(['funds'])->withSum('funds', 'amount')->get();
 
 
         return response([

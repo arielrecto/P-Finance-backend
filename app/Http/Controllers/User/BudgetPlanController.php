@@ -61,7 +61,7 @@ class BudgetPlanController extends Controller
         ]);
 
 
-        $budget = Budget::latest()->first();
+        $budget = Budget::where('user_id', $user->id)->latest()->first();
 
         if($budget){
             $fund = BudgetFund::create([
