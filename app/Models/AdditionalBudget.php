@@ -5,24 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Expense extends Model
+class AdditionalBudget extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'price',
-        // 'quantity',
-        // 'total',
-        'image',
-        'category',
-        'budget_id',
+        'amount',
+        'budget_id'
     ];
 
 
-
-    public function budget()
-    {
+    public function budget(){
         return $this->belongsTo(Budget::class);
     }
 }

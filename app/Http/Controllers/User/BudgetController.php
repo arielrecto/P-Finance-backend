@@ -94,7 +94,11 @@ class BudgetController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Budget::whereId($id)->with(['expenses', 'funds.budgetPlan', 'additionalBudget'])
+        ->withSum('additionalBudget', 'amount')
+        ->withSum('expenses', 'price')
+        ->withSum('funds', 'amount')
+        ->first();
     }
 
     /**

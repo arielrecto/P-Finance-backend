@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Enums\CategoryEnum;
 use App\Models\Budget;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Expense;
+use App\Models\Category;
+use App\Enums\CategoryEnum;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ExpenseController extends Controller
@@ -61,9 +63,27 @@ class ExpenseController extends Controller
         ]);
 
 
-        if($request->otherCategory){
+        if ($request->otherCategory) {
             Category::create([
                 'name' => $request->otherCategory
+            ]);
+        }
+
+
+        if ($request->image) {
+            $expenseImage = $request->image;  // your base64 encoded
+            $expenseImage = str_replace('data:image/png;base64,', '', $expenseImage);
+            $expenseImage = str_replace(' ', '+', $expenseImage);
+            $expenseImageName =  'RCV-' . uniqid() . '.' . 'png';
+            $expenseFilename = preg_replace('~[\\\\\s+/:*?"<>|+-]~', '-', $expenseImageName);
+
+            $expenseImageDecoded = base64_decode($expenseImage);
+
+            Storage::disk('public')->put('expense/' . $expenseFilename, $expenseImageDecoded);
+
+
+            $expense->update([
+                'image' => asset('/storage/expense/' . $expenseImageName),
             ]);
         }
 
@@ -85,7 +105,7 @@ class ExpenseController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Expense::find($id);
     }
 
     /**
@@ -110,5 +130,25 @@ class ExpenseController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getMonthlyExpenses()
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Fetch all expenses for the current month
+        $expenses = Expense::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->get();
+
+        // Group by category and week
+        $groupedExpenses = $expenses->groupBy('category')->map(function ($categoryExpenses) {
+            return $categoryExpenses->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->weekOfMonth;
+            });
+        });
+
+        return response()->json($groupedExpenses);
     }
 }

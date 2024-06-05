@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\AdditionalBudgetController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -47,10 +48,14 @@ Route::middleware(['auth:sanctum', 'role:user'])->group(function(){
 
     Route::get('/home', [HomeController::class, 'index']);
 
+    Route::prefix('expenses')->group(function(){
+        Route::get('/monthly', [ExpenseController::class, 'getMonthlyExpenses']);
+    });
 
 
     Route::resource('budgets', BudgetController::class)->except(['create', 'edit']);
     Route::resource('expenses', ExpenseController::class)->except(['create', 'edit']);
     Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
     Route::resource('budget-plan', BudgetPlanController::class)->except(['create', 'edit']);
+    Route::resource('additional-budget', AdditionalBudgetController::class)->except(['create', 'edit']);
 });
