@@ -16,8 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('price');
-            $table->string('quantity');
-            $table->string('total');
+            // $table->string('quantity');
+            // $table->string('total');
             $table->string('category');
             $table->foreignIdFor(Budget::class)->constrained()->onDelete('cascade');
             $table->timestamps();

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Enums\CategoryEnum;
 use App\Models\Budget;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Expense;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -35,8 +37,8 @@ class ExpenseController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'quantity' => 'required',
-            'total' => 'required',
+            // 'quantity' => 'required',
+            // 'total' => 'required',
             'category' => 'required',
         ]);
 
@@ -51,22 +53,30 @@ class ExpenseController extends Controller
 
         $expense = Expense::create([
             'name' => $request->name,
-            'quantity' => $request->quantity,
+            // 'quantity' => $request->quantity,
             'price' => $request->price,
-            'total' => $request->total,
-            'category' => $request->category,
+            // 'total' => $request->total,
+            'category' => $request->category === CategoryEnum::OTHER->value ? $request->otherCategory  : $request->category,
             'budget_id' => $budget->id
         ]);
 
 
+        if($request->otherCategory){
+            Category::create([
+                'name' => $request->otherCategory
+            ]);
+        }
+
+
         $budget->update([
-            'amount' => $budget->amount - $expense->total
+            'amount' => $budget->amount - $expense->price
         ]);
 
-
+        $category = Category::get();
         return response([
             'expense' => $expense,
-            'budget' => $budget
+            'budget' => $budget,
+            'categories' => $category
         ], 200);
     }
 

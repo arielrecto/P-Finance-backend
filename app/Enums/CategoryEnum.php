@@ -13,4 +13,5 @@ enum CategoryEnum :string {
     case ELECTRIC = 'Electric bill';
     case WATER = "Water bill";
     case LPG = 'LPG';
+    case OTHER = 'other';
 }
