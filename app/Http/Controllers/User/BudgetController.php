@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AdditionalBudget;
 use App\Models\Budget;
 use App\Models\BudgetFund;
 use App\Models\BudgetPlan;
@@ -35,58 +36,59 @@ class BudgetController extends Controller
     {
 
 
-        $validator = Validator::make($request->all(), [
-            'moneyIn' => 'required|array',
-            'moneyIn.amount' => 'required',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'amoun' => 'required|array',
+        //     'moneyIn.amount' => 'required',
+        // ]);
 
-        // Check if validation fails
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+        // // Check if validation fails
+        // if ($validator->fails()) {
+        //     return response()->json(['errors' => $validator->errors()], 400);
+        // }
+
+
+        $user = Auth::user();
+
+        $budget = Budget::where('user_id', $user->id)->first();
+
+        if (!$budget) {
+            $budget = Budget::create([
+                'amount' => $request->amount,
+                'user_id' => $user->id,
+                'init_amount' => $request->amount,
+                'month' => now()->format('F'),
+            ]);
+
+
+            AdditionalBudget::create([
+                'name' => $request->name,
+                'date' => $request->date,
+                'time' => $request->time,
+                'amount' => $request->amount,
+                'budget_id' => $budget->id
+            ]);
+
+            return response(['message' => 'budget added'], 200);
         }
 
 
-        $data = json_decode($request->getContent(), true);
-
-        $user = Auth::user();
 
 
-
-        $amount = $data['moneyIn']['amount'];
-        $breakDown = $data['breakDown'];
-
-
-
-        $user = Auth::user();
-
-        $budget = Budget::create([
-            'amount' => $amount,
-            'user_id' => $user->id,
-            'init_amount' => $amount,
-            'month' => now()->format('F'),
+       $addBudget = AdditionalBudget::create([
+            'name' => $request->name,
+            'date' => $request->date,
+            'time' => $request->time,
+            'amount' => $request->amount,
+            'budget_id' => $budget->id
         ]);
-
-        collect($breakDown['listItems'])->map(function($breakDown) use($budget) {
-            BudgetFund::create([
-                'amount' => $breakDown['deduction'],
-                'budget_plan_id' => $breakDown['id'],
-                'budget_id' => $budget->id
-            ]);
-        });
 
 
         $budget->update([
-            'amount' => $breakDown['remaining']
+            'amount' => $budget->amount + $addBudget->amount,
+            'init_amount' => $budget->init_amount + $addBudget->amount,
         ]);
 
-
-        $budgetPlans = BudgetPlan::where('user_id', $user->id)->with(['funds'])->withSum('funds', 'amount')->get();
-
-
-        return response([
-            'budget' => $budget,
-            'budget_plan' => $budgetPlans
-        ], 200);
+        return response(['budget' => $addBudget], 200);
     }
 
     /**
@@ -95,10 +97,10 @@ class BudgetController extends Controller
     public function show(string $id)
     {
         return Budget::whereId($id)->with(['expenses', 'funds.budgetPlan', 'additionalBudget'])
-        ->withSum('additionalBudget', 'amount')
-        ->withSum('expenses', 'price')
-        ->withSum('funds', 'amount')
-        ->first();
+            ->withSum('additionalBudget', 'amount')
+            ->withSum('expenses', 'price')
+            ->withSum('funds', 'amount')
+            ->first();
     }
 
     /**

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
-use App\Models\AdditionalBudget;
 use App\Models\Budget;
 use Illuminate\Http\Request;
+use App\Models\AdditionalBudget;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AdditionalBudgetController extends Controller
@@ -15,7 +16,23 @@ class AdditionalBudgetController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $year = now()->format("Y");
+        $monthly_add_budgets = AdditionalBudget::getMonthlyTotals($year, $user->id);
+
+
+        $addBudgets = AdditionalBudget::where(function($q) use($user) {
+            $q->whereHas('budget', function($q) use($user){
+                $q->where('user_id', $user->id);
+            });
+        })->latest()->get();
+
+
+
+        return response([
+            'monthly_add_budgets' => $monthly_add_budgets,
+            'addBudgets' => $addBudgets
+        ]);
     }
 
     /**

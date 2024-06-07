@@ -20,7 +20,22 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        //
+
+        $user = Auth::user();
+        $year = now()->format("Y");
+        $monthly_expenses = Expense::getMonthlyTotals($year, $user->id);
+
+        $expenses = Expense::where(function ($q) use ($user) {
+            $q->whereHas('budget', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+        })->latest()->get();
+
+
+        return response([
+            'monthly_expenses' => $monthly_expenses,
+            'expenses' => $expenses
+        ]);
     }
 
     /**
@@ -90,6 +105,13 @@ class ExpenseController extends Controller
 
         $budget->update([
             'amount' => $budget->amount - $expense->price
+        ]);
+
+
+        $addBudget = $budget->additionalBudget()->latest()->first();
+
+        $addBudget->update([
+            'amount' => $addBudget->amount - $expense->price
         ]);
 
         $category = Category::get();

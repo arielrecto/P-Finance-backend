@@ -6,6 +6,7 @@ use App\Models\Budget;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AdditionalBudget;
 use App\Models\BudgetPlan;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
@@ -17,23 +18,20 @@ class HomeController extends Controller
 
         $user = Auth::user();
 
-        $budget = Budget::where(function ($q) use ($user) {
-            $q->where('user_id', $user->id)
-            ->where('month', now()->format('F'));
-        })->latest()->first();
+        $budget = Budget::where('user_id', $user->id)->first();
 
-        $categories = Category::get();
-
-        $expenses = Expense::where('budget_id', $budget->id ?? null)->latest()->get();
-
-        $budgetPlan = BudgetPlan::where('user_id', $user->id)->with(['funds'])->withSum('funds', 'amount')->latest()->get();
+        $totalIncome = AdditionalBudget::where(function($q) use($user){
+            $q->whereHas('budget', function($q) use($user){
+                $q->where('user_id', $user->id);
+            });
+        })->sum('amount');
+        $expenses = Expense::where('budget_id', $budget->id)->sum('price');
 
 
         return response([
             'budget' => $budget,
+            'total_income' => $totalIncome,
             'expenses' => $expenses,
-            'budget_plan' => $budgetPlan,
-            'categories' => $categories
         ], 200);
     }
 }

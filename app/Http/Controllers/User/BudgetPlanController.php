@@ -19,11 +19,17 @@ class BudgetPlanController extends Controller
      */
     public function index()
     {
+
+        $user = Auth::user();
+
         $categories = BudgetPlanCategory::get();
+
+        $budgetPlans = BudgetPlan::where('user_id', $user->id)->get();
 
 
         return response([
             'categories' => $categories,
+            'budgetPlans' => $budgetPlans
         ], 200);
     }
 
@@ -59,24 +65,6 @@ class BudgetPlanController extends Controller
             'deduct_percent' => $request->deductPercent,
             'user_id' => $user->id,
         ]);
-
-
-        $budget = Budget::where('user_id', $user->id)->latest()->first();
-
-        if($budget){
-            $fund = BudgetFund::create([
-                'amount' => $budget->amount * ($budgetPlan->deduct_percent / 100),
-                'budget_plan_id' => $budgetPlan->id,
-                'budget_id' => $budget->id
-            ]);
-
-
-
-            $budget->update([
-                'amount' => $budget->amount - $fund->amount
-            ]);
-        }
-
 
 
         return response([
