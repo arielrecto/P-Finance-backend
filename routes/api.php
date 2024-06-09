@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\Auth\LoginController;
 use App\Http\Controllers\User\Auth\RegisterController;
 use App\Http\Controllers\User\BudgetController;
+use App\Http\Controllers\User\BudgetFundController;
 use App\Http\Controllers\User\BudgetPlanController;
 use App\Http\Controllers\User\CategoryController;
+use App\Http\Controllers\User\DeductionBudgetController;
 use App\Http\Controllers\User\ExpenseController;
 use App\Http\Controllers\User\HomeController;
+use App\Models\DeductionBudget;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +61,6 @@ Route::middleware(['auth:sanctum', 'role:user'])->group(function(){
     Route::resource('categories', CategoryController::class)->except(['create', 'edit']);
     Route::resource('budget-plan', BudgetPlanController::class)->except(['create', 'edit']);
     Route::resource('additional-budget', AdditionalBudgetController::class)->except(['create', 'edit']);
+    Route::resource('budget-fund', BudgetFundController::class)->except(['create', 'edit']);
+    Route::resource('deduction-budget', DeductionBudgetController::class)->except(['create', 'edit']);
 });

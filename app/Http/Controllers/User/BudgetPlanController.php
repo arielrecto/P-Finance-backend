@@ -24,7 +24,7 @@ class BudgetPlanController extends Controller
 
         $categories = BudgetPlanCategory::get();
 
-        $budgetPlans = BudgetPlan::where('user_id', $user->id)->get();
+        $budgetPlans = BudgetPlan::where('user_id', $user->id)->withSum('funds', 'amount')->get();
 
 
         return response([
@@ -63,6 +63,7 @@ class BudgetPlanController extends Controller
             'name' => $request->name,
             'category' => $request->category,
             'deduct_percent' => $request->deductPercent,
+            'completion_date' => $request->completionDate,
             'user_id' => $user->id,
         ]);
 
@@ -77,7 +78,18 @@ class BudgetPlanController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $user = Auth::user();
+
+
+        $budget = Budget::where('user_id', $user->id)->first();
+
+        $budgetPlan = BudgetPlan::where('id', $id)->with(['funds'])->withSum('funds', 'amount')->first();
+
+
+        return response([
+            'budget' => $budget,
+            'budget_plan' => $budgetPlan
+        ], 200);
     }
 
     /**

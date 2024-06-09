@@ -32,4 +32,7 @@ class Budget extends Model
     public function additionalBudget(){
         return $this->hasMany(AdditionalBudget::class);
     }
+    public function deductionBudget(){
+        return $this->hasMany(DeductionBudget::class);
+    }
 }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('category');
             $table->foreignIdFor(User::class);
             $table->float('deduct_percent');
+            $table->date('completion_date');
             $table->timestamps();
         });
     }

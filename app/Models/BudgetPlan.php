@@ -15,6 +15,7 @@ class BudgetPlan extends Model
         'category',
         'deduct_percent',
         'user_id',
+        'completion_date'
     ];
 
 
