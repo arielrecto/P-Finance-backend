@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\DeductionBudget;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -59,6 +60,12 @@ class DeductionBudgetController extends Controller
         ]);
 
 
+        Expense::create([
+            'name' => $request->name,
+            'price' => $request->amount,
+            'category' => 'money out',
+            'budget_id' => $budget->id
+        ]);
 
         $budget->update([
             'amount' => $budget->amount - $request->amount
